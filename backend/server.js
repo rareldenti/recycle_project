@@ -1,12 +1,34 @@
-const app = require('./app');
-const models = require('./models');
-const PORT = process.env.PORT || 5000;
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const db = require('./models');
+const path = require('path');
+require('dotenv').config();
 
-models.sequelize.sync({ force: true }).then(() => {
-  console.log('Database & tables created!');
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
-}).catch(err => {
-  console.error('Unable to connect to the database:', err);
+const app = express();
+
+app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// 测试数据库连接
+db.sequelize.authenticate()
+  .then(() => console.log('Database connected...'))
+  .catch(err => console.log('Error: ' + err));
+
+// 同步数据库
+db.sequelize.sync().then(() => console.log('Database synced')).catch(err => console.log('Error syncing database: ' + err));
+
+// 路由
+app.use('/api/users', require('./routes/userRoutes'));
+app.use('/api/recycling-info', require('./routes/recyclingInfoRoutes'));
+app.use('/api/orders', require('./routes/orderRoutes'));
+app.use('/api/categories', require('./routes/categoryRoutes'));
+
+// 静态文件服务
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });

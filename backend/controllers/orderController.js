@@ -1,33 +1,51 @@
-const { Order } = require('../models');
+const { Order, User } = require('../models');
+const path = require('path');
 
 exports.createOrder = async (req, res) => {
   try {
-    const { user_id, recycling_id, status } = req.body;
-    const order = await Order.create({ user_id, recycling_id, status });
+    const { name } = req.body;
+    const image_url = req.file ? path.relative(path.join(__dirname, '..'), req.file.path) : null;
+
+    console.log('Creating order with data:', { name, image_url });
+
+    const order = await Order.create({
+      user_id: req.userId,
+      name,
+      image_url: image_url ? `/${image_url}` : null
+    });
+
+    console.log('Order created:', order);
+
     res.status(201).json({ order });
   } catch (err) {
+    console.error('Failed to create order:', err);
     res.status(400).json({ error: err.message });
   }
 };
 
 exports.getOrders = async (req, res) => {
   try {
-    const orders = await Order.findAll();
+    const orders = await Order.findAll({ include: [User] });
     res.status(200).json({ orders });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    console.error('Failed to fetch orders:', err);
+    res.status(500).json({ error: err.message });
   }
 };
 
 exports.updateOrder = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    const { name } = req.body;
+    const image_url = req.file ? req.file.path : null;
     const order = await Order.findByPk(id);
     if (!order) {
       return res.status(404).json({ error: 'Order not found' });
     }
-    order.status = status;
+    order.name = name;
+    if (image_url) {
+      order.image_url = image_url;
+    }
     await order.save();
     res.status(200).json({ order });
   } catch (err) {

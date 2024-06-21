@@ -1,44 +1,36 @@
 <template>
-    <div>
-      <h1>Login</h1>
-      <el-form :model="loginForm" @submit.prevent="handleLogin">
-        <el-form-item label="Email">
-          <el-input v-model="loginForm.email"></el-input>
-        </el-form-item>
-        <el-form-item label="Password">
-          <el-input type="password" v-model="loginForm.password"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="handleLogin">Login</el-button>
-        </el-form-item>
-      </el-form>
-    </div>
-  </template>
-  
-  <script>
-  import { mapActions } from 'vuex';
-  
-  export default {
-    name: 'Login',
-    data() {
-      return {
-        loginForm: {
-          email: '',
-          password: '',
-        },
-      };
-    },
-    methods: {
-      ...mapActions(['login']),
-      async handleLogin() {
-        try {
-          await this.login(this.loginForm);
-          this.$router.push('/dashboard');
-        } catch (error) {
-          console.error(error);
-        }
-      },
-    },
-  };
-  </script>
-  
+  <el-form @submit.prevent="handleLogin">
+    <el-form-item label="用户名">
+      <el-input v-model="username" />
+    </el-form-item>
+    <el-form-item label="密码">
+      <el-input type="password" v-model="password" />
+    </el-form-item>
+    <el-button type="primary" native-type="submit">登入</el-button>
+  </el-form>
+</template>
+
+<script>
+import { mapActions } from 'vuex';
+
+export default {
+  name: 'Login',
+  data() {
+    return {
+      username: '',
+      password: ''
+    };
+  },
+  methods: {
+    ...mapActions(['login']),
+    async handleLogin() {
+      try {
+        await this.login({ username: this.username, password: this.password });
+        this.$router.push('/dashboard');
+      } catch (error) {
+        console.error('Login failed:', error);
+      }
+    }
+  }
+}
+</script>

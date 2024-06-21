@@ -3,36 +3,45 @@ import axios from 'axios';
 
 export default createStore({
   state: {
-    user: null,
     token: localStorage.getItem('token') || '',
+    user: JSON.parse(localStorage.getItem('user')) || {},
   },
   mutations: {
-    setUser(state, user) {
-      state.user = user;
-    },
-    setToken(state, token) {
+    SET_TOKEN(state, token) {
       state.token = token;
     },
+    SET_USER(state, user) {
+      state.user = user;
+    },
+    LOGOUT(state) {
+      state.token = '';
+      state.user = {};
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
   },
   actions: {
-    async login({ commit }, user) {
-      const response = await axios.post('http://localhost:5000/api/users/login', user);
+    async login({ commit }, credentials) {
+      const response = await axios.post('/users/login', credentials);
       const token = response.data.token;
+      const user = response.data.user;
       localStorage.setItem('token', token);
-      axios.defaults.headers.common['Authorization'] = token;
-      commit('setToken', token);
-      const userResponse = await axios.get('http://localhost:5000/api/users/profile');
-      commit('setUser', userResponse.data.user);
+      localStorage.setItem('user', JSON.stringify(user));
+      commit('SET_TOKEN', token);
+      commit('SET_USER', user);
     },
-    async register({ commit }, user) {
-      await axios.post('http://localhost:5000/api/users/register', user);
+    async fetchUser({ commit, state }) {
+      const response = await axios.get('/users/profile', {
+        headers: { 'Authorization': `Bearer ${state.token}` }
+      });
+      commit('SET_USER', response.data.user);
     },
     logout({ commit }) {
-      commit('setUser', null);
-      commit('setToken', '');
-      localStorage.removeItem('token');
-      delete axios.defaults.headers.common['Authorization'];
-    },
+      commit('LOGOUT');
+    }
   },
-  modules: {},
+  getters: {
+    isAuthenticated: state => !!state.token,
+    user: state => state.user,
+  }
 });

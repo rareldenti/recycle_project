@@ -4,7 +4,7 @@ import Login from '../views/Login.vue';
 import Register from '../views/Register.vue';
 import Dashboard from '../views/Dashboard.vue';
 import RecyclingInfo from '../views/RecyclingInfo.vue';
-import Orders from '../views/Orders.vue';
+import OrderManagement from '../views/OrderManagement.vue';
 import Categories from '../views/Categories.vue';
 
 const routes = [
@@ -13,7 +13,7 @@ const routes = [
   { path: '/register', name: 'Register', component: Register },
   { path: '/dashboard', name: 'Dashboard', component: Dashboard, meta: { requiresAuth: true } },
   { path: '/recycling-info', name: 'RecyclingInfo', component: RecyclingInfo, meta: { requiresAuth: true } },
-  { path: '/orders', name: 'Orders', component: Orders, meta: { requiresAuth: true } },
+  { path: '/orders', name: 'OrderManagement', component: OrderManagement, meta: { requiresAuth: true } },
   { path: '/categories', name: 'Categories', component: Categories, meta: { requiresAuth: true } },
 ];
 

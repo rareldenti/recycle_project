@@ -1,6 +1,6 @@
 <template>
     <div>
-      <h1>Welcome to Recycling System</h1>
+      <h1>衣服回收系统</h1>
     </div>
   </template>
   

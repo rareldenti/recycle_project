@@ -1,4 +1,5 @@
 const { RecyclingInfo } = require('../models');
+const path = require('path');
 
 exports.createRecyclingInfo = async (req, res) => {
   try {
@@ -9,6 +10,17 @@ exports.createRecyclingInfo = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
+
+exports.createRecyclingInfo = async (req, res) => {
+    try {
+      const { user_id, clothing_type, description } = req.body;
+      const image_url = req.file ? path.join('uploads', req.file.filename) : null;
+      const recyclingInfo = await RecyclingInfo.create({ user_id, clothing_type, description, image_url });
+      res.status(201).json({ recyclingInfo });
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  };
 
 exports.getRecyclingInfos = async (req, res) => {
   try {

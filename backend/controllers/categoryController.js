@@ -1,4 +1,16 @@
 const { Category } = require('../models');
+const path = require('path');
+
+exports.createCategory = async (req, res) => {
+  try {
+    const { category_name, description } = req.body;
+    const image_url = req.file ? path.join('uploads', req.file.filename) : null;
+    const category = await Category.create({ category_name, description, image_url });
+    res.status(201).json({ category });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
 
 exports.createCategory = async (req, res) => {
   try {

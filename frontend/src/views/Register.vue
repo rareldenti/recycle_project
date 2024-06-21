@@ -1,55 +1,46 @@
 <template>
-    <div>
-      <h1>Register</h1>
-      <el-form :model="registerForm" @submit.prevent="handleRegister">
-        <el-form-item label="Username">
-          <el-input v-model="registerForm.username"></el-input>
-        </el-form-item>
-        <el-form-item label="Email">
-          <el-input v-model="registerForm.email"></el-input>
-        </el-form-item>
-        <el-form-item label="Password">
-          <el-input type="password" v-model="registerForm.password"></el-input>
-        </el-form-item>
-        <el-form-item label="Role">
-          <el-select v-model="registerForm.role">
-            <el-option label="User" value="user"></el-option>
-            <el-option label="Admin" value="admin"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="handleRegister">Register</el-button>
-        </el-form-item>
-      </el-form>
-    </div>
-  </template>
-  
-  <script>
-  import { mapActions } from 'vuex';
-  
-  export default {
-    name: 'Register',
-    data() {
-      return {
-        registerForm: {
-          username: '',
-          email: '',
-          password: '',
-          role: 'user',
-        },
-      };
-    },
-    methods: {
-      ...mapActions(['register']),
-      async handleRegister() {
-        try {
-          await this.register(this.registerForm);
-          this.$router.push('/login');
-        } catch (error) {
-          console.error(error);
-        }
-      },
-    },
-  };
-  </script>
-  
+  <el-form @submit.prevent="register">
+    <el-form-item label="用户名">
+      <el-input v-model="username" />
+    </el-form-item>
+    <el-form-item label="密码">
+      <el-input type="password" v-model="password" />
+    </el-form-item>
+    <el-form-item label="类型">
+      <el-select v-model="role" placeholder="Select role">
+        <el-option label="用户" value="user" />
+        <el-option label="管理员" value="admin" />
+      </el-select>
+    </el-form-item>
+    <el-button type="primary" native-type="submit">注册</el-button>
+  </el-form>
+</template>
+
+<script>
+import axios from 'axios';
+
+export default {
+  name: 'Register',
+  data() {
+    return {
+      username: '',
+      password: '',
+      role: 'user'
+    };
+  },
+  methods: {
+    async register() {
+      try {
+        await axios.post('/users/register', {
+          username: this.username,
+          password: this.password,
+          role: this.role
+        });
+        this.$router.push('/login');
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  }
+}
+</script>
