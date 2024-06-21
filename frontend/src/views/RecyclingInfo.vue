@@ -7,14 +7,14 @@
         <el-table-column prop="description" label="Description"></el-table-column>
         <el-table-column prop="image_url" label="Image URL"></el-table-column>
         <el-table-column label="Actions">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <el-button @click="editRecyclingInfo(scope.row)">Edit</el-button>
             <el-button @click="deleteRecyclingInfo(scope.row.id)">Delete</el-button>
           </template>
         </el-table-column>
       </el-table>
   
-      <el-dialog title="Create Recycling Info" :visible.sync="showCreateDialog">
+      <el-dialog title="Create Recycling Info" v-model:visible="showCreateDialog">
         <el-form :model="recyclingInfoForm">
           <el-form-item label="Clothing Type">
             <el-input v-model="recyclingInfoForm.clothing_type"></el-input>
@@ -26,10 +26,10 @@
             <el-input v-model="recyclingInfoForm.image_url"></el-input>
           </el-form-item>
         </el-form>
-        <div slot="footer">
+        <template v-slot:footer>
           <el-button @click="showCreateDialog = false">Cancel</el-button>
           <el-button type="primary" @click="createRecyclingInfo">Create</el-button>
-        </div>
+        </template>
       </el-dialog>
     </div>
   </template>

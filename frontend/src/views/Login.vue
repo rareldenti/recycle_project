@@ -1,7 +1,7 @@
 <template>
     <div>
       <h1>Login</h1>
-      <el-form :model="loginForm" @submit.native.prevent="handleLogin">
+      <el-form :model="loginForm" @submit.prevent="handleLogin">
         <el-form-item label="Email">
           <el-input v-model="loginForm.email"></el-input>
         </el-form-item>

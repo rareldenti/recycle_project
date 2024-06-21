@@ -1,7 +1,7 @@
 <template>
     <div>
       <h1>Register</h1>
-      <el-form :model="registerForm" @submit.native.prevent="handleRegister">
+      <el-form :model="registerForm" @submit.prevent="handleRegister">
         <el-form-item label="Username">
           <el-input v-model="registerForm.username"></el-input>
         </el-form-item>

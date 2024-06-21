@@ -7,14 +7,14 @@
         <el-table-column prop="description" label="Description"></el-table-column>
         <el-table-column prop="image_url" label="Image URL"></el-table-column>
         <el-table-column label="Actions">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <el-button @click="editCategory(scope.row)">Edit</el-button>
             <el-button @click="deleteCategory(scope.row.id)">Delete</el-button>
           </template>
         </el-table-column>
       </el-table>
   
-      <el-dialog title="Create Category" :visible.sync="showCreateDialog">
+      <el-dialog title="Create Category" v-model:visible="showCreateDialog">
         <el-form :model="categoryForm">
           <el-form-item label="Category Name">
             <el-input v-model="categoryForm.category_name"></el-input>
@@ -26,10 +26,10 @@
             <el-input v-model="categoryForm.image_url"></el-input>
           </el-form-item>
         </el-form>
-        <div slot="footer">
+        <template v-slot:footer>
           <el-button @click="showCreateDialog = false">Cancel</el-button>
           <el-button type="primary" @click="createCategory">Create</el-button>
-        </div>
+        </template>
       </el-dialog>
     </div>
   </template>

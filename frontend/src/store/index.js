@@ -21,7 +21,6 @@ export default createStore({
       localStorage.setItem('token', token);
       axios.defaults.headers.common['Authorization'] = token;
       commit('setToken', token);
-      // Fetch user data
       const userResponse = await axios.get('http://localhost:5000/api/users/profile');
       commit('setUser', userResponse.data.user);
     },

@@ -6,7 +6,7 @@
         <el-table-column prop="recycling_id" label="Recycling ID"></el-table-column>
         <el-table-column prop="status" label="Status"></el-table-column>
         <el-table-column label="Actions">
-          <template slot-scope="scope">
+          <template v-slot:default="scope">
             <el-button @click="editOrder(scope.row)">Edit</el-button>
             <el-button @click="deleteOrder(scope.row.id)">Delete</el-button>
           </template>
