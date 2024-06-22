@@ -1,35 +1,34 @@
 <template>
   <div>
-    <h2>Category Management</h2>
-    <el-button @click="openCreateDialog">Add Category</el-button>
-    <el-dialog v-model="showCreateDialog" title="Create Category">
+    <el-button @click="openCreateDialog">添加种类</el-button>
+    <el-dialog v-model="showCreateDialog" title="创建种类">
       <el-form :model="newCategory" @submit.prevent="createCategory">
-        <el-form-item label="Name">
+        <el-form-item label="名称">
           <el-input v-model="newCategory.name" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="createCategory">Create</el-button>
-          <el-button @click="closeCreateDialog">Cancel</el-button>
+          <el-button type="primary" @click="createCategory">创建</el-button>
+          <el-button @click="closeCreateDialog">取消</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
     <el-table :data="categories">
-      <el-table-column prop="name" label="Name" />
-      <el-table-column label="Actions">
+      <el-table-column prop="name" label="名称" />
+      <el-table-column label="操作">
         <template v-slot="scope">
-          <el-button size="mini" @click="openEditDialog(scope.row)">Edit</el-button>
-          <el-button size="mini" @click="deleteCategory(scope.row.id)">Delete</el-button>
+          <el-button size="mini" @click="openEditDialog(scope.row)">编辑</el-button>
+          <el-button size="mini" @click="deleteCategory(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
-    <el-dialog v-model="showEditDialog" title="Edit Category">
+    <el-dialog v-model="showEditDialog" title="编辑种类">
       <el-form :model="currentCategory" @submit.prevent="updateCategory">
-        <el-form-item label="Name">
+        <el-form-item label="名称">
           <el-input v-model="currentCategory.name" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="updateCategory">Update</el-button>
-          <el-button @click="closeEditDialog">Cancel</el-button>
+          <el-button type="primary" @click="updateCategory">更新</el-button>
+          <el-button @click="closeEditDialog">取消</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -99,7 +98,7 @@ export default {
     async deleteCategory(id) {
       try {
         await axios.delete(`/categories/${id}`);
-        this.fetchCategories();
+      this.fetchCategories();
       } catch (error) {
         console.error('Failed to delete category:', error.response ? error.response.data : error.message);
       }

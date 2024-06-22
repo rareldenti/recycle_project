@@ -26,7 +26,7 @@ export default {
     async handleLogin() {
       try {
         await this.login({ username: this.username, password: this.password });
-        this.$router.push('/dashboard');
+        this.$router.push('/');
       } catch (error) {
         console.error('Login failed:', error);
       }
