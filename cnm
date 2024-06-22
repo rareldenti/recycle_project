@@ -1,0 +1,258 @@
+<template>
+  <div>
+    <!-- 面包屑导航 -->
+    <el-breadcrumb separator="/">
+      <el-breadcrumb-item :to="{ path: '/' }">订单管理</el-breadcrumb-item>
+      <el-breadcrumb-item>订单列表</el-breadcrumb-item>
+    </el-breadcrumb>
+
+    <!-- 卡片 -->
+    <el-card>
+      <!-- 订单表格 -->
+      <el-table :data="orders" stripe style="width: 100%">
+        <el-table-column prop="id" label="订单ID" width="120" align="center" />
+        <el-table-column prop="uid" label="用户ID" align="center" />
+        <el-table-column prop="tid" label="课本ID" align="center" />
+        <el-table-column prop="quantity" label="数量" align="center" />
+        <el-table-column prop="total_price" label="总金额" align="center">
+          <template #default="{ row }"> {{ row.total_price }} ￥ </template>
+        </el-table-column>
+        <el-table-column prop="status" label="状态" align="center">
+          <template #default="{ row }">
+            <el-tag :type="statusTagType(row.status)">{{ row.status }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="180" align="center">
+          <template #default="{ row }">
+            <!-- 修改按钮 -->
+            <el-button
+              v-if="row.status !== '待支付'"
+              type="primary"
+              size="mini"
+              @click="edit(row)"
+            >
+              修改
+            </el-button>
+            <el-button v-else type="primary" size="mini" :disabled="true">
+              修改
+            </el-button>
+            <!-- 删除按钮 -->
+            <el-button type="danger" size="mini" @click="handleDelete(row.id)">
+              删除
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <!-- 分页 -->
+      <div class="demo-pagination-block">
+        <el-pagination
+          v-model:currentPage="pagination.currentPage"
+          v-model:pageSize="pagination.pageSize"
+          :page-sizes="[10, 20, 30, 40]"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="pagination.total"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
+    </el-card>
+
+    <!-- 修改状态对话框 -->
+    <el-dialog
+      title="修改订单状态"
+      width="30%"
+      :visible.sync="dialogVisible"
+      :before-close="handleDialogClose"
+      ref="dialog"
+    >
+      <el-form :model="editForm" ref="editForm" :rules="editFormRules">
+        <el-form-item
+          label="订单状态"
+          :label-width="formLabelWidth"
+          prop="status"
+        >
+          <el-select
+            v-model="editForm.status"
+            placeholder="请选择或输入订单状态"
+          >
+            <el-option label="待支付" value="待支付"></el-option>
+            <el-option label="已支付" value="已支付"></el-option>
+            <el-option label="已取消" value="已取消"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div class="dialog-footer">
+        <el-button @click="handleDialogClose">取消</el-button>
+        <el-button type="primary" @click="handleSaveEdit">保存</el-button>
+      </div>
+    </el-dialog>
+  </div>
+</template>
+
+<script setup>
+import { ref, reactive, onMounted } from "vue";
+import { ElMessage, ElMessageBox } from "element-plus";
+import axios from "axios";
+
+// 响应式数据
+const orders = ref([]);
+const pagination = reactive({
+  currentPage: 1,
+  pageSize: 10,
+  total: 0,
+});
+const dialogVisible = ref(false);
+const editForm = reactive({
+  id: null,
+  status: "",
+});
+const formLabelWidth = "80px";
+
+// 表单校验规则
+const editFormRules = {
+  status: [{ required: true, message: "请选择订单状态", trigger: "change" }],
+};
+
+// 获取订单数据
+const fetchOrders = async () => {
+  try {
+    const response = await axios.get("http://localhost:3000/admin/order");
+    orders.value = response.data;
+    pagination.total = response.data.length;
+  } catch (error) {
+    console.error("获取订单数据失败:", error);
+    ElMessage.error("获取订单数据失败");
+  }
+};
+
+// 模拟组件挂载时获取数据
+onMounted(fetchOrders);
+
+// 处理分页大小变更
+const handleSizeChange = (newSize) => {
+  pagination.pageSize = newSize;
+  fetchOrders(); // 分页变更后重新获取数据
+};
+
+// 处理当前页变更
+const handleCurrentChange = (newPage) => {
+  pagination.currentPage = newPage;
+  fetchOrders(); // 页码变更后重新获取数据
+};
+
+// 处理编辑按钮点击事件，仅限修改订单状态
+const edit = (row) => {
+  // 打开对话框并初始化表单
+  editForm.id = row.id;
+  editForm.status = row.status;
+  dialogVisible.value = true;
+};
+
+// 处理保存按钮点击事件
+const handleSaveEdit = async () => {
+  refs.editForm.validate((valid) => {
+    if (!valid) return;
+    updateOrderStatus(editForm.id, editForm.status)
+      .then(() => {
+        fetchOrders(); // 更新成功后重新获取数据
+        dialogVisible.value = false;
+        ElMessage.success("订单状态更新成功");
+      })
+      .catch((error) => {
+        console.error("更新订单状态失败:", error);
+        ElMessage.error("更新订单状态失败");
+      });
+  });
+};
+
+// 更新订单状态的方法
+const updateOrderStatus = async (orderId, newStatus) => {
+  try {
+    const response = await axios.put(
+      `http://localhost:3000/admin/order/${orderId}`,
+      { status: newStatus }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error("更新订单状态失败");
+  }
+};
+
+// 关闭对话框
+const handleDialogClose = () => {
+  dialogVisible.value = false;
+};
+
+// 处理删除按钮点击事件
+const handleDelete = (orderId) => {
+  ElMessageBox.confirm("确定删除订单吗?", "提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+  })
+    .then(async () => {
+      try {
+        await deleteOrder(orderId);
+        ElMessage.success("订单删除成功");
+        fetchOrders(); // 删除成功后重新获取数据
+      } catch (error) {
+        console.error("删除订单失败:", error);
+        ElMessage.error("删除订单失败");
+      }
+    })
+    .catch(() => {
+      ElMessage.info("已取消删除");
+    });
+};
+
+// 删除订单的方法
+const deleteOrder = async (orderId) => {
+  try {
+    const response = await axios.delete(
+      `http://localhost:3000/admin/order/${orderId}`
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error("删除订单失败");
+  }
+};
+
+// 根据订单状态返回对应的标签样式
+const statusTagType = (status) => {
+  switch (status) {
+    case "待支付":
+      return "warning";
+    case "已支付":
+      return "success";
+    case "已取消":
+      return "danger";
+    default:
+      return "";
+  }
+};
+</script>
+
+<style scoped>
+.el-card {
+  margin-top: 20px;
+}
+
+.demo-pagination-block {
+  margin-top: 20px;
+  text-align: center;
+}
+
+/* 根据不同状态设置标签样式 */
+.el-tag.warning {
+  color: #e6a23c;
+}
+
+.el-tag.success {
+  color: #67c23a;
+}
+
+.el-tag.danger {
+  color: #f56c6c;
+}
+</style>
